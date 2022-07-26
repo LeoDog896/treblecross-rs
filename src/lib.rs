@@ -1,6 +1,6 @@
 pub struct Game {
-  pub state: Vec<u16>,
-  pub size: u16
+    pub state: Vec<u16>,
+    pub size: u16,
 }
 
 impl Game {
@@ -8,7 +8,7 @@ impl Game {
     pub fn new(size: u16) -> Self {
         Self {
             state: vec![0; size as usize],
-            size
+            size,
         }
     }
 
@@ -58,27 +58,33 @@ impl Game {
 
         self
     }
-    
-    pub fn clone(&self) -> Self {
+}
+
+impl Clone for Game {
+    fn clone(&self) -> Self {
         Self {
             state: self.state.clone(),
-            size: self.size
+            size: self.size,
         }
-    }}
+    }
+}
 /// Solves a treblecross game using the negamax formula.
 /// The game is over when there are 3 filled cells (1s) in a row.
 pub fn solve(game: &Game) -> Vec<i16> {
+    game.state
+        .iter()
+        .enumerate()
+        .map(|(_, &x)| -> i16 {
+            if game.can_play(x) && game.is_winning_move(x) {
+                return (game.size as i16 + 1 - game.amount_played() as i16) / 2;
+            }
 
-    game.state.iter().enumerate().map(|(_, &x)| -> i16 {
-        if game.can_play(x) && game.is_winning_move(x) {
-            return (game.size as i16 + 1 - game.amount_played() as i16) / 2;
-        }
+            if game.can_play(x) {
+                let new_game = game.clone().play(x);
+                return -(solve(&new_game).iter().max().unwrap() as &i16);
+            }
 
-        if game.can_play(x) {
-            let new_game = game.clone().play(x);
-            return -(solve(&new_game).iter().max().unwrap() as &i16)
-        }
-
-        return -(game.size as i16);
-    }).collect::<Vec<i16>>()
+            -(game.size as i16)
+        })
+        .collect::<Vec<i16>>()
 }
