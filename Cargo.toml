@@ -1,5 +1,5 @@
 [package]
-name = "treblecross-lib"
+name = "treblecross"
 version = "0.1.0"
 edition = "2021"
 
