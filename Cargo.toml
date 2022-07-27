@@ -1,8 +1,18 @@
 [package]
-name = "treblecross-rs"
+name = "treblecross-lib"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+treblecross = { path = "./treblecross" }
+dialoguer = "0.10.1"
+console = "0.15.0"
+anyhow = "1.0.58"
+
+[workspace]
+
+members = [
+    "treblecross",
+]
