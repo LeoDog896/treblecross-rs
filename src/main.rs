@@ -4,7 +4,7 @@ use std::{
     cmp::{max, min},
     io::Write,
 };
-use treblecross::{solve_and_collect, Game};
+use lib_treblecross::{solve_and_collect, Game};
 
 fn print_game(game: &Game, position: usize, term: &mut Term) -> std::io::Result<()> {
     {

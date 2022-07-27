@@ -65,6 +65,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "lib_treblecross"
+version = "0.1.0"
+
+[[package]]
 name = "libc"
 version = "0.2.126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -136,14 +140,10 @@ dependencies = [
 [[package]]
 name = "treblecross"
 version = "0.1.0"
-
-[[package]]
-name = "treblecross-lib"
-version = "0.1.0"
 dependencies = [
  "console",
  "dialoguer",
- "treblecross",
+ "lib_treblecross",
 ]
 
 [[package]]
