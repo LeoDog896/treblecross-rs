@@ -67,36 +67,36 @@ impl Clone for Game {
 }
 /// Solves a treblecross game using the negamax formula.
 /// The game is over when there are 3 filled cells (1s) in a row.
-pub fn solve(game: &Game) -> impl Iterator<Item = i16> + '_ {
+pub fn solve(game: &Game) -> impl Iterator<Item = f32> + '_ {
     game.state
         .iter()
         .enumerate()
-        .map(|(_, &x)| -> i16 {
+        .map(|(x, _)| -> f32 {
             
             let x = x as usize;
 
             if game.can_play(x) && game.is_winning_move(x) {
-                return ((game.size() + 1) as i16 - game.amount_played() as i16) / 2;
+                return ((game.size() + 1) as f32 - game.amount_played() as f32) / 2f32;
             }
 
             if game.can_play(x) {
                 let mut new_game = game.clone();
                 new_game.play(x);
-                return -(&solve(&new_game).max().unwrap() as &i16);
+                return -(&solve(&new_game).reduce(f32::max).unwrap() as &f32);
             }
 
-            return -(game.size() as i16);
+            -(game.size() as f32)
         })
 }
 
-pub fn solve_and_collect(game: &Game) -> Vec<i16> {
+pub fn solve_and_collect(game: &Game) -> Vec<f32> {
     solve(game).collect()
 }
 
 #[cfg(test)]
 mod tests {
 
-    use crate::Game;
+    use crate::{Game, solve_and_collect};
 
     #[test]
     fn winning_move() {
@@ -114,6 +114,23 @@ mod tests {
 
         assert!(game.is_winning_move(3));
         assert!(game.is_winning_move(0));
+    }
+
+    #[test]
+    fn length() {
+        let game = Game::new(5);
+
+        assert_eq!(game.size(), 5);
+    }
+
+    #[test]
+    fn negative_length_if_played() {
+        let mut game = Game::new(5);
+
+        game.play(2);
+
+        assert!(!game.can_play(2));
+        assert_eq!(solve_and_collect(&game)[2], -5f32);
     }
 
     #[test]

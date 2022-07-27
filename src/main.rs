@@ -50,7 +50,7 @@ fn main_err() -> Result<()> {
     let stdout = Term::stdout();
 
     let length: usize = Input::with_theme(&ColorfulTheme::default())
-        .with_prompt("Length of board")
+        .with_prompt("Board Length")
         .default(5)
         .interact_text()
         .unwrap();
