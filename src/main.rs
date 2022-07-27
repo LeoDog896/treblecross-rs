@@ -1,10 +1,9 @@
 use console::{Style, Term, Key};
 use dialoguer::{theme::ColorfulTheme, Input};
 use std::cmp::{max, min};
-use anyhow::Result;
 use treblecross::{Game, solve_and_collect};
 
-fn print_game(game: &Game, position: usize) {
+fn print_game(game: &Game, position: usize, term: &Term) {
     {
         let state = game.state.clone();
         let mut board = String::new();
@@ -44,7 +43,7 @@ fn main() {
     main_err().unwrap();
 }
 
-fn main_err() -> Result<()> {
+fn main_err() -> std::io::Result<()> {
     let mut cursor_position: usize = 0;
 
     let stdout = Term::stdout();
@@ -62,13 +61,13 @@ fn main_err() -> Result<()> {
         let game_over = game.game_over();
         
         if game_over {
-            println!("Game over!");
+            stdout.write_line("Game over!")?;
             break;
         }
 
         stdout.clear_screen()?;
 
-        print_game(&game, cursor_position);
+        print_game(&game, cursor_position, &stdout);
 
         if let Ok(key) = stdout.read_key() {
             match key {

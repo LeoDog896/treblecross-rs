@@ -9,7 +9,6 @@ edition = "2021"
 treblecross = { path = "./treblecross" }
 dialoguer = "0.10.1"
 console = "0.15.0"
-anyhow = "1.0.58"
 
 [workspace]
 
