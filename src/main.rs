@@ -2,7 +2,7 @@ use console::{Style, Term, Key};
 use dialoguer::{theme::ColorfulTheme, Input};
 use std::cmp::{max, min};
 use anyhow::Result;
-use treblecross::{solve, Game};
+use treblecross::{Game, solve_and_collect};
 
 fn print_game(game: &Game, position: usize) {
     {
@@ -30,7 +30,7 @@ fn print_game(game: &Game, position: usize) {
     }
 
     {
-        let solved = solve(game);
+        let solved = solve_and_collect(game);
         let mut board = String::new();
         for i in 0..game.size() {
             board.push_str(&format!("{: >4} ", solved[i as usize]));

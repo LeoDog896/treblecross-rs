@@ -67,7 +67,7 @@ impl Clone for Game {
 }
 /// Solves a treblecross game using the negamax formula.
 /// The game is over when there are 3 filled cells (1s) in a row.
-pub fn solve(game: &Game) -> Vec<i16> {
+pub fn solve(game: &Game) -> impl Iterator<Item = i16> + '_ {
     game.state
         .iter()
         .enumerate()
@@ -76,19 +76,21 @@ pub fn solve(game: &Game) -> Vec<i16> {
             let x = x as usize;
 
             if game.can_play(x) && game.is_winning_move(x) {
-                println!("{}", game.amount_played());
                 return ((game.size() + 1) as i16 - game.amount_played() as i16) / 2;
             }
 
             if game.can_play(x) {
                 let mut new_game = game.clone();
                 new_game.play(x);
-                return -(solve(&new_game).iter().max().unwrap() as &i16);
+                return -(&solve(&new_game).max().unwrap() as &i16);
             }
 
             return -(game.size() as i16);
         })
-        .collect::<Vec<i16>>()
+}
+
+pub fn solve_and_collect(game: &Game) -> Vec<i16> {
+    solve(game).collect()
 }
 
 #[cfg(test)]
