@@ -1,28 +1,32 @@
 pub struct Game {
-    pub state: Vec<u16>
+    pub state: Vec<u16>,
 }
 
 impl Game {
     #[must_use]
     pub fn new(size: usize) -> Self {
         Self {
-            state: vec![0; size]
+            state: vec![0; size],
         }
     }
 
+    #[must_use]
     pub fn size(&self) -> usize {
         self.state.len()
     }
 
+    #[must_use]
     pub fn amount_played(&self) -> usize {
         self.state.iter().filter(|&x| *x == 1).count()
     }
 
+    #[must_use]
     pub fn can_play(&self, x: usize) -> bool {
         self.state[x] == 0
     }
 
     /// The game is over when there are 3 or more consecutive 1s in the state.
+    #[must_use]
     pub fn game_over(&self) -> bool {
         let mut consecutive = 0;
         for i in 0..self.size() {
@@ -38,6 +42,7 @@ impl Game {
         false
     }
 
+    #[must_use]
     pub fn is_winning_move(&self, x: usize) -> bool {
         let mut consecutive = 0;
         for i in 0..self.size() {
@@ -61,34 +66,31 @@ impl Game {
 impl Clone for Game {
     fn clone(&self) -> Self {
         Self {
-            state: self.state.clone()
+            state: self.state.clone(),
         }
     }
 }
 /// Solves a treblecross game using the negamax formula.
 /// The game is over when there are 3 filled cells (1s) in a row.
 pub fn solve(game: &Game) -> impl Iterator<Item = f32> + '_ {
-    game.state
-        .iter()
-        .enumerate()
-        .map(|(x, _)| -> f32 {
-            
-            let x = x as usize;
+    game.state.iter().enumerate().map(|(x, _)| -> f32 {
+        let x = x as usize;
 
-            if game.can_play(x) && game.is_winning_move(x) {
-                return ((game.size() + 1) as f32 - game.amount_played() as f32) / 2f32;
-            }
+        if game.can_play(x) && game.is_winning_move(x) {
+            return ((game.size() + 1) as f32 - game.amount_played() as f32) / 2f32;
+        }
 
-            if game.can_play(x) {
-                let mut new_game = game.clone();
-                new_game.play(x);
-                return -(&solve(&new_game).reduce(f32::max).unwrap() as &f32);
-            }
+        if game.can_play(x) {
+            let mut new_game = game.clone();
+            new_game.play(x);
+            return -(&solve(&new_game).reduce(f32::max).unwrap() as &f32);
+        }
 
-            -(game.size() as f32)
-        })
+        -(game.size() as f32)
+    })
 }
 
+#[must_use]
 pub fn solve_and_collect(game: &Game) -> Vec<f32> {
     solve(game).collect()
 }
@@ -96,7 +98,7 @@ pub fn solve_and_collect(game: &Game) -> Vec<f32> {
 #[cfg(test)]
 mod tests {
 
-    use crate::{Game, solve_and_collect};
+    use crate::{solve_and_collect, Game};
 
     #[test]
     fn winning_move() {

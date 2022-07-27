@@ -1,14 +1,15 @@
-use console::{Style, Term, Key};
+use console::{Key, Style, Term};
 use dialoguer::{theme::ColorfulTheme, Input};
-use std::cmp::{max, min};
-use treblecross::{Game, solve_and_collect};
+use std::{
+    cmp::{max, min},
+    io::Write,
+};
+use treblecross::{solve_and_collect, Game};
 
-fn print_game(game: &Game, position: usize, term: &Term) {
+fn print_game(game: &Game, position: usize, term: &mut Term) -> std::io::Result<()> {
     {
         let state = game.state.clone();
-        let mut board = String::new();
         for i in 0..game.size() {
-
             let position = position;
 
             let style = match position {
@@ -16,27 +17,31 @@ fn print_game(game: &Game, position: usize, term: &Term) {
                 _ => Style::new().white(),
             };
 
-            board.push_str(&format!(
-                "{: >4} ",
-                style.apply_to(match state.get(i as usize) {
-                    Some(0) | None => ".",
-                    Some(1) => "X",
-                    _ => unreachable!(),
-                })
-            ));
+            term.write_all(
+                format!(
+                    "{: >4} ",
+                    style.apply_to(match state.get(i as usize) {
+                        Some(0) | None => ".",
+                        Some(1) => "X",
+                        _ => unreachable!(),
+                    })
+                )
+                .as_bytes(),
+            )?;
         }
-        println!("{}", board);
+        term.write_line("")?;
     }
 
     {
         let solved = solve_and_collect(game);
-        let mut board = String::new();
         for i in 0..game.size() {
-            board.push_str(&format!("{: >4} ", solved[i as usize]));
+            term.write_all(format!("{: >4} ", solved[i as usize]).as_bytes())?;
         }
 
-        println!("{}", board);
+        term.write_line("")?;
     }
+
+    Ok(())
 }
 
 fn main() {
@@ -46,9 +51,9 @@ fn main() {
 fn main_err() -> std::io::Result<()> {
     let mut cursor_position: usize = 0;
 
-    let stdout = Term::stdout();
+    let mut stdout = Term::stdout();
 
-    let length: usize = Input::with_theme(&ColorfulTheme::default())
+    let length = Input::<usize>::with_theme(&ColorfulTheme::default())
         .with_prompt("Board Length")
         .default(5)
         .interact_text()
@@ -57,9 +62,8 @@ fn main_err() -> std::io::Result<()> {
     let mut game = Game::new(length);
 
     loop {
-
         let game_over = game.game_over();
-        
+
         if game_over {
             stdout.write_line("Game over!")?;
             break;
@@ -67,18 +71,20 @@ fn main_err() -> std::io::Result<()> {
 
         stdout.clear_screen()?;
 
-        print_game(&game, cursor_position, &stdout);
+        print_game(&game, cursor_position, &mut stdout)?;
 
         if let Ok(key) = stdout.read_key() {
             match key {
                 Key::Char('a') | Key::ArrowLeft => cursor_position = max(0, cursor_position - 1),
-                Key::Char('d') | Key::ArrowRight => cursor_position = min(length - 1, cursor_position + 1),
+                Key::Char('d') | Key::ArrowRight => {
+                    cursor_position = min(length - 1, cursor_position + 1)
+                }
                 Key::Enter => {
                     if game.can_play(cursor_position) {
                         game.play(cursor_position);
                     }
                 }
-                _ => continue
+                _ => continue,
             }
         }
     }
