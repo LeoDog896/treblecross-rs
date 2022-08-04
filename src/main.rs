@@ -1,6 +1,6 @@
 use console::{Key, Style, Term};
 use dialoguer::{theme::ColorfulTheme, Input};
-use lib_treblecross::{solve_and_collect, Game};
+use lib_treblecross::{solve, Game};
 use std::{
     cmp::{max, min},
     io::Write,
@@ -20,25 +20,21 @@ fn print_game(game: &Game, position: usize, term: &mut Term) -> std::io::Result<
             term.write_all(
                 format!(
                     "{: >4} ",
-                    style.apply_to(match state.get(i) {
-                        Some(false) | None => ".",
-                        Some(true) => "X",
-                    })
+                    style.apply_to(if state[i] { "." } else { "X" })
                 )
                 .as_bytes(),
             )?;
         }
-        term.write_line("")?;
     }
 
-    {
-        let solved = solve_and_collect(game);
-        for i in 0..game.size() {
-            term.write_all(format!("{: >4} ", solved[i as usize]).as_bytes())?;
-        }
+    term.write_line("")?;
 
-        term.write_line("")?;
+    let solved = solve(game);
+    for num in solved {
+        term.write_all(format!("{: >4} ", num).as_bytes())?;
     }
+
+    term.write_line("")?;
 
     Ok(())
 }
@@ -74,7 +70,9 @@ fn main_err() -> std::io::Result<()> {
 
         if let Ok(key) = stdout.read_key() {
             match key {
-                Key::Char('a') | Key::ArrowLeft => cursor_position = max(0, cursor_position - 1),
+                Key::Char('a') | Key::ArrowLeft => {
+                    cursor_position = max(0, ((cursor_position as isize) - 1).try_into().unwrap());
+                }
                 Key::Char('d') | Key::ArrowRight => {
                     cursor_position = min(length - 1, cursor_position + 1);
                 }

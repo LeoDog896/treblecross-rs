@@ -31,8 +31,8 @@ impl Game {
     #[must_use]
     pub fn game_over(&self) -> bool {
         let mut consecutive = 0;
-        for i in 0..self.size() {
-            if self.state[i] {
+        for val in &self.state {
+            if val {
                 consecutive += 1;
             } else {
                 consecutive = 0;
@@ -74,11 +74,8 @@ impl Clone for Game {
 }
 /// Solves a treblecross game using the negamax formula.
 /// The game is over when there are 3 filled cells (1s) in a row.
-#[must_use]
 pub fn solve(game: &Game) -> impl Iterator<Item = f32> + '_ {
     game.state.iter().enumerate().map(|(x, _)| -> f32 {
-        let x = x as usize;
-
         if game.can_play(x) && game.is_winning_move(x) {
             return ((game.size() + 1) as f32 - game.amount_played() as f32) / 2f32;
         }
