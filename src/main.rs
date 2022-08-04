@@ -20,10 +20,9 @@ fn print_game(game: &Game, position: usize, term: &mut Term) -> std::io::Result<
             term.write_all(
                 format!(
                     "{: >4} ",
-                    style.apply_to(match state.get(i as usize) {
-                        Some(0) | None => ".",
-                        Some(1) => "X",
-                        _ => unreachable!(),
+                    style.apply_to(match state.get(i) {
+                        Some(false) | None => ".",
+                        Some(true) => "X",
                     })
                 )
                 .as_bytes(),
@@ -77,7 +76,7 @@ fn main_err() -> std::io::Result<()> {
             match key {
                 Key::Char('a') | Key::ArrowLeft => cursor_position = max(0, cursor_position - 1),
                 Key::Char('d') | Key::ArrowRight => {
-                    cursor_position = min(length - 1, cursor_position + 1)
+                    cursor_position = min(length - 1, cursor_position + 1);
                 }
                 Key::Enter => {
                     if game.can_play(cursor_position) {

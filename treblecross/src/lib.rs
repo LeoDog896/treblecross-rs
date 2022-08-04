@@ -1,12 +1,12 @@
 pub struct Game {
-    pub state: Vec<u16>,
+    pub state: Vec<bool>,
 }
 
 impl Game {
     #[must_use]
     pub fn new(size: usize) -> Self {
         Self {
-            state: vec![0; size],
+            state: vec![false; size],
         }
     }
 
@@ -17,12 +17,12 @@ impl Game {
 
     #[must_use]
     pub fn amount_played(&self) -> usize {
-        self.state.iter().filter(|&x| *x == 1).count()
+        self.state.iter().filter(|&x| *x).count()
     }
 
     #[must_use]
     pub fn can_play(&self, x: usize) -> bool {
-        self.state[x] == 0
+        !self.state[x]
     }
 
     /// The game is over when there are 3 or more consecutive 1s in the state.
@@ -30,7 +30,7 @@ impl Game {
     pub fn game_over(&self) -> bool {
         let mut consecutive = 0;
         for i in 0..self.size() {
-            if self.state[i] == 1 {
+            if self.state[i] {
                 consecutive += 1;
             } else {
                 consecutive = 0;
@@ -46,7 +46,7 @@ impl Game {
     pub fn is_winning_move(&self, x: usize) -> bool {
         let mut consecutive = 0;
         for i in 0..self.size() {
-            if i == x || self.state[i] == 1 {
+            if i == x || self.state[i] {
                 consecutive += 1;
             } else {
                 consecutive = 0;
@@ -59,7 +59,7 @@ impl Game {
     }
 
     pub fn play(&mut self, x: usize) {
-        self.state[x] = 1;
+        self.state[x] = true;
     }
 }
 
@@ -140,7 +140,7 @@ mod tests {
         let mut game = Game::new(5);
         game.play(0);
 
-        assert!(game.state[0] == 1);
+        assert!(game.state[0]);
     }
 
     #[test]
