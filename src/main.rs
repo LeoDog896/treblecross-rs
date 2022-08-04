@@ -1,10 +1,10 @@
 use console::{Key, Style, Term};
 use dialoguer::{theme::ColorfulTheme, Input};
+use lib_treblecross::{solve_and_collect, Game};
 use std::{
     cmp::{max, min},
     io::Write,
 };
-use lib_treblecross::{solve_and_collect, Game};
 
 fn print_game(game: &Game, position: usize, term: &mut Term) -> std::io::Result<()> {
     {

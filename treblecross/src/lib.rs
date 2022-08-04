@@ -1,12 +1,14 @@
+use bit_vec::BitVec;
+
 pub struct Game {
-    pub state: Vec<bool>,
+    pub state: BitVec,
 }
 
 impl Game {
     #[must_use]
     pub fn new(size: usize) -> Self {
         Self {
-            state: vec![false; size],
+            state: BitVec::from_elem(size, false),
         }
     }
 
@@ -17,7 +19,7 @@ impl Game {
 
     #[must_use]
     pub fn amount_played(&self) -> usize {
-        self.state.iter().filter(|&x| *x).count()
+        self.state.iter().filter(|&x| x).count()
     }
 
     #[must_use]
@@ -59,7 +61,7 @@ impl Game {
     }
 
     pub fn play(&mut self, x: usize) {
-        self.state[x] = true;
+        self.state.set(x, true);
     }
 }
 
@@ -72,6 +74,7 @@ impl Clone for Game {
 }
 /// Solves a treblecross game using the negamax formula.
 /// The game is over when there are 3 filled cells (1s) in a row.
+#[must_use]
 pub fn solve(game: &Game) -> impl Iterator<Item = f32> + '_ {
     game.state.iter().enumerate().map(|(x, _)| -> f32 {
         let x = x as usize;
