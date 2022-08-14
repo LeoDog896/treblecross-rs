@@ -29,7 +29,6 @@ fn show_calculating() -> ProgressBar {
 
 fn print_game(game: &Game, position: usize, term: &mut Term, solved: &Vec<f32>) -> std::io::Result<()> {
     {
-        let state = game.state.clone();
         for i in 0..game.size() {
             let position = position;
 
@@ -41,7 +40,7 @@ fn print_game(game: &Game, position: usize, term: &mut Term, solved: &Vec<f32>) 
             term.write_all(
                 format!(
                     "{: >4} ",
-                    style.apply_to(if state[i] { "X" } else { "." })
+                    style.apply_to(if game.can_play(x) { "." } else { "X" })
                 )
                 .as_bytes(),
             )?;
