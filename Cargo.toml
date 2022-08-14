@@ -8,7 +8,7 @@ description = "Interactive treblecross solver"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-lib_treblecross = { path = "./treblecross", version = "0.2.0" }
+lib_treblecross = { path = "./treblecross", version = "0.2.1" }
 dialoguer = "0.10.1"
 console = "0.15.0"
 indicatif = "0.17.0"
