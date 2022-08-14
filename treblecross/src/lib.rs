@@ -1,10 +1,14 @@
+//! Simple treblecross solver.
+
 use bit_vec::BitVec;
 
+/// A game of treblecross represented as a list of binary values.
 pub struct Game {
     pub state: BitVec,
 }
 
 impl Game {
+    /// Create a new game of treblecross with the given size.
     #[must_use]
     pub fn new(size: usize) -> Self {
         Self {
@@ -12,16 +16,19 @@ impl Game {
         }
     }
 
+    /// Get the size of the board.
     #[must_use]
     pub fn size(&self) -> usize {
         self.state.len()
     }
 
+    /// Get the number of cells that are filled in the game, aka the amount of moves made in the game.
     #[must_use]
     pub fn amount_played(&self) -> usize {
         self.state.iter().filter(|&x| x).count()
     }
 
+    /// Check if a player can play in this cell (if it is not filled)
     #[must_use]
     pub fn can_play(&self, x: usize) -> bool {
         !self.state[x]
@@ -44,6 +51,7 @@ impl Game {
         false
     }
 
+    /// True if the move makes 3 or more consecutive 1s in the state.
     #[must_use]
     pub fn is_winning_move(&self, x: usize) -> bool {
         let mut consecutive = 0;
@@ -60,6 +68,7 @@ impl Game {
         false
     }
 
+    /// Play a move in the game.
     pub fn play(&mut self, x: usize) {
         self.state.set(x, true);
     }
