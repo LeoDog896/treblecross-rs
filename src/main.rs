@@ -58,11 +58,7 @@ fn print_game(game: &Game, position: usize, term: &mut Term, solved: &Vec<f32>) 
     Ok(())
 }
 
-fn main() {
-    main_err().unwrap();
-}
-
-fn main_err() -> std::io::Result<()> {
+fn main() -> std::io::Result<()> {
     let mut cursor_position: usize = 0;
 
     let mut stdout = Term::stdout();
@@ -81,10 +77,9 @@ fn main_err() -> std::io::Result<()> {
     loop {
         pb.finish();
 
-        let game_over = game.game_over();
-
-        if game_over {
-            stdout.write_line("Game over!")?;
+        if game.game_over() {
+            assert!(game.amount_played() != 0); // can't win if you haven't played yet
+            stdout.write_line(&format!("Game finished! Player {} won!", if game.amount_played() % 2 == 0 { "2" } else { "1" }))?;
             break;
         }
 
@@ -102,6 +97,7 @@ fn main_err() -> std::io::Result<()> {
                 }
                 Key::Enter => {
                     if game.can_play(cursor_position) {
+                        pb = show_calculating();
                         game.play(cursor_position);
                         solved = solve_and_collect(&game);
                     }
@@ -109,8 +105,6 @@ fn main_err() -> std::io::Result<()> {
                 _ => continue,
             }
         }
-
-        pb = show_calculating();
     }
 
     Ok(())

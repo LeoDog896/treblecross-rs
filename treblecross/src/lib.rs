@@ -102,7 +102,12 @@ fn negamax(game: &Game, alpha: f32, beta: f32) -> impl Iterator<Item = f32> + '_
         
         let mut new_game = game.clone();
         new_game.play(x);
-        let score = negamax(&new_game, -beta, -alpha).reduce(f32::max).unwrap() as f32;
+
+        let mut score_board = negamax(&new_game, -beta, -alpha).peekable();
+
+        assert!(score_board.peek().is_some()); // board length shouldnt change (future unwrap)
+
+        let score = score_board.reduce(f32::max).unwrap() as f32;
         if score >= beta {
             return score;
         }
