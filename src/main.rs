@@ -40,7 +40,7 @@ fn print_game(game: &Game, position: usize, term: &mut Term, solved: &Vec<f32>) 
             term.write_all(
                 format!(
                     "{: >4} ",
-                    style.apply_to(if game.can_play(x) { "." } else { "X" })
+                    style.apply_to(if game.can_play(i) { "." } else { "X" })
                 )
                 .as_bytes(),
             )?;
