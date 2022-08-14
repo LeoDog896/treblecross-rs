@@ -11,6 +11,7 @@ description = "Interactive treblecross solver"
 lib_treblecross = { path = "./treblecross", version = "0.1.0" }
 dialoguer = "0.10.1"
 console = "0.15.0"
+indicatif = "0.17.0"
 
 [workspace]
 

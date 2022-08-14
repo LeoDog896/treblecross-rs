@@ -1,12 +1,33 @@
 use console::{Key, Style, Term};
 use dialoguer::{theme::ColorfulTheme, Input};
-use lib_treblecross::{solve, Game};
+use lib_treblecross::{solve_and_collect, Game};
+use indicatif::{ProgressBar, ProgressStyle};
 use std::{
     cmp::{max, min},
-    io::Write,
+    io::Write, time::Duration,
 };
 
-fn print_game(game: &Game, position: usize, term: &mut Term) -> std::io::Result<()> {
+fn show_calculating() -> ProgressBar {
+    let pb = ProgressBar::new_spinner();
+    pb.enable_steady_tick(Duration::from_millis(120));
+    pb.set_style(
+        ProgressStyle::with_template("{spinner:.blue} {msg}")
+            .unwrap()
+            .tick_strings(&[
+                "▹▹▹▹▹",
+                "▸▹▹▹▹",
+                "▹▸▹▹▹",
+                "▹▹▸▹▹",
+                "▹▹▹▸▹",
+                "▹▹▹▹▸",
+                "▪▪▪▪▪",
+            ]),
+    );
+    pb.set_message("Calculating...");
+    pb
+}
+
+fn print_game(game: &Game, position: usize, term: &mut Term, solved: &Vec<f32>) -> std::io::Result<()> {
     {
         let state = game.state.clone();
         for i in 0..game.size() {
@@ -20,7 +41,7 @@ fn print_game(game: &Game, position: usize, term: &mut Term) -> std::io::Result<
             term.write_all(
                 format!(
                     "{: >4} ",
-                    style.apply_to(if state[i] { "." } else { "X" })
+                    style.apply_to(if state[i] { "X" } else { "." })
                 )
                 .as_bytes(),
             )?;
@@ -29,7 +50,6 @@ fn print_game(game: &Game, position: usize, term: &mut Term) -> std::io::Result<
 
     term.write_line("")?;
 
-    let solved = solve(game);
     for num in solved {
         term.write_all(format!("{: >4} ", num).as_bytes())?;
     }
@@ -54,9 +74,14 @@ fn main_err() -> std::io::Result<()> {
         .interact_text()
         .unwrap();
 
+    let mut pb = show_calculating();
+
     let mut game = Game::new(length);
+    let mut solved = solve_and_collect(&game);
 
     loop {
+        pb.finish();
+
         let game_over = game.game_over();
 
         if game_over {
@@ -66,7 +91,7 @@ fn main_err() -> std::io::Result<()> {
 
         stdout.clear_screen()?;
 
-        print_game(&game, cursor_position, &mut stdout)?;
+        print_game(&game, cursor_position, &mut stdout, &solved)?;
 
         if let Ok(key) = stdout.read_key() {
             match key {
@@ -79,11 +104,14 @@ fn main_err() -> std::io::Result<()> {
                 Key::Enter => {
                     if game.can_play(cursor_position) {
                         game.play(cursor_position);
+                        solved = solve_and_collect(&game);
                     }
                 }
                 _ => continue,
             }
         }
+
+        pb = show_calculating();
     }
 
     Ok(())
