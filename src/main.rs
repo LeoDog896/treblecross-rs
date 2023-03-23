@@ -3,7 +3,7 @@ use dialoguer::{theme::ColorfulTheme, Input};
 use lib_treblecross::{solve_and_collect, Game};
 use indicatif::{ProgressBar, ProgressStyle};
 use std::{
-    cmp::{max, min},
+    cmp::min,
     io::Write, time::Duration,
 };
 
@@ -90,7 +90,7 @@ fn main() -> std::io::Result<()> {
         if let Ok(key) = stdout.read_key() {
             match key {
                 Key::Char('a') | Key::ArrowLeft => {
-                    cursor_position = max(0, ((cursor_position as isize) - 1).try_into().unwrap());
+                    cursor_position = ((cursor_position as isize) - 1).try_into().unwrap_or(0);
                 }
                 Key::Char('d') | Key::ArrowRight => {
                     cursor_position = min(length - 1, cursor_position + 1);
