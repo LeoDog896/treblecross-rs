@@ -20,14 +20,14 @@ fn show_calculating() -> ProgressBar {
                 "▹▹▸▹▹",
                 "▹▹▹▸▹",
                 "▹▹▹▹▸",
-                "▪▪▪▪▪",
+                "!!!!!",
             ]),
     );
     pb.set_message("Calculating...");
     pb
 }
 
-fn print_game(game: &Game, position: usize, term: &mut Term, solved: &Vec<f32>) -> std::io::Result<()> {
+fn print_game(game: &Game, position: usize, term: &mut Term, solved: &Vec<Option<f32>>) -> std::io::Result<()> {
     {
         for i in 0..game.size() {
             let position = position;
@@ -50,7 +50,12 @@ fn print_game(game: &Game, position: usize, term: &mut Term, solved: &Vec<f32>) 
     term.write_line("")?;
 
     for num in solved {
-        term.write_all(format!("{: >4} ", num).as_bytes())?;
+        term.write_all(
+            format!(
+                "{: >4} ",
+                num.map(|n| n.to_string()).unwrap_or(" ".to_string())
+            ).as_bytes()
+        )?;
     }
 
     term.write_line("")?;

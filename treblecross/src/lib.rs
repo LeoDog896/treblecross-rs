@@ -82,52 +82,62 @@ impl Clone for Game {
     }
 }
 
-fn negamax(game: &Game, alpha: f32, beta: f32) -> impl Iterator<Item = f32> + '_ {
-    game.state.iter().enumerate().map(move |(x, _)| -> f32 {
-        if !game.can_play(x) {
-            return -(game.size() as f32);
-        }
+fn negamax(game: &Game, alpha: f32, beta: f32) -> f32 {
+    assert!(alpha < beta, "beta should be greater than alpha");
 
-        if game.is_winning_move(x) {
-            return ((game.size() + 1) as f32 - game.amount_played() as f32) / 2.0;
-        }
+    let mut alpha = alpha;
+    let mut beta = beta;
 
-        let max = ((game.size() as f32) - 1.0 - game.amount_played() as f32) / 2.0;
-        if beta > max {
-            let beta = max;
-            if alpha >= beta { 
-                return beta
+    for x in 0..game.size() {
+        if game.can_play(x) && game.is_winning_move(x) {
+            return (game.size() as f32 + 1.0 - game.amount_played() as f32) / 2.0;
+        }
+    }
+
+    let max = (game.size() as f32 - 1.0 - game.amount_played() as f32) / 2.0;
+
+    if beta > max {
+        beta = max;
+        if alpha >= beta {
+            return beta;
+        }
+    }
+
+    for x in 0..game.size() {
+        if game.can_play(x) {
+            let mut new_game = game.clone();
+            new_game.play(x);
+
+            let score = -negamax(&new_game, -beta, -alpha);
+
+            if score >= beta {
+                return score;
+            }
+
+            if score > alpha {
+                alpha = score;
             }
         }
-        
-        let mut new_game = game.clone();
-        new_game.play(x);
+    }
 
-        let mut score_board = negamax(&new_game, -beta, -alpha).peekable();
-
-        assert!(score_board.peek().is_some()); // board length shouldnt change (future unwrap)
-
-        let score = score_board.reduce(f32::max).unwrap() as f32;
-        if score >= beta {
-            return score;
-        }
-        
-        if score > alpha {
-            return score;
-        }
-
-        return alpha;
-    })
+    return alpha;
 }
 
 /// Solves a treblecross game using the negamax formula.
 /// The game is over when there are 3 filled cells (1s) in a row.
-pub fn solve(game: &Game) -> impl Iterator<Item = f32> + '_ {
-    negamax(game, std::f32::MIN, std::f32::MAX)
+pub fn solve(game: &Game) -> impl Iterator<Item = Option<f32>> + '_ {
+    game.state.iter().enumerate().map(move |(x, _)| -> Option<f32> {
+        if !game.can_play(x) {
+            return None;
+        }
+        let mut new_game = game.clone();
+        new_game.play(x);
+        Some(negamax(&new_game, std::f32::MIN, std::f32::MAX))
+    })
 }
 
 #[must_use]
-pub fn solve_and_collect(game: &Game) -> Vec<f32> {
+pub fn solve_and_collect(game: &Game) -> Vec<Option<f32>> {
     solve(game).collect()
 }
 
@@ -162,13 +172,13 @@ mod tests {
     }
 
     #[test]
-    fn negative_length_if_played() {
+    fn none_if_played() {
         let mut game = Game::new(5);
 
         game.play(2);
 
         assert!(!game.can_play(2));
-        assert_eq!(solve_and_collect(&game)[2], -5f32);
+        assert_eq!(solve_and_collect(&game)[2], None);
     }
 
     #[test]
