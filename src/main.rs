@@ -27,7 +27,7 @@ fn show_calculating() -> ProgressBar {
     pb
 }
 
-fn print_game(game: &Game, position: usize, term: &mut Term, solved: &Vec<Option<f32>>) -> std::io::Result<()> {
+fn print_game(game: &Game, position: usize, term: &mut Term, solved: &Vec<Option<isize>>) -> std::io::Result<()> {
     {
         for i in 0..game.size() {
             let position = position;
