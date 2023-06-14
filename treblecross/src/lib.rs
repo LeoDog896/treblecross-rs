@@ -82,19 +82,10 @@ impl Clone for Game {
     }
 }
 
-fn negamax(game: &Game, mut alpha: isize, mut beta: isize) -> isize {
+fn negamax(game: &Game, mut alpha: isize, beta: isize) -> isize {
     for x in 0..game.size() {
         if game.can_play(x) && game.is_winning_move(x) {
             return (game.size() as isize + 1 - game.amount_played() as isize) / 2;
-        }
-    }
-
-    let max = (game.size() as isize - 1 - game.amount_played() as isize) / 2;
-
-    if beta > max {
-        beta = max;
-        if alpha >= beta {
-            return beta;
         }
     }
 
@@ -105,7 +96,7 @@ fn negamax(game: &Game, mut alpha: isize, mut beta: isize) -> isize {
 
             let score = -negamax(&new_game, -beta, -alpha);
 
-            if score >= beta {
+            if score >= beta - 1 {
                 return score;
             }
 
@@ -115,7 +106,7 @@ fn negamax(game: &Game, mut alpha: isize, mut beta: isize) -> isize {
         }
     }
 
-     alpha
+    alpha
 }
 
 /// Solves a treblecross game using the negamax formula.
